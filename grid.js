@@ -73,9 +73,13 @@ Grid.prototype.reveal = function(x, y){
 
     for (var i = 0; i < this.cols; i++) {
         for (var j = 0; j < this.rows; j++) {
-          if (this.grid[i][j].contains(x, y)) {
+          // cannot reveal a flagged cell 
+          if (this.grid[i][j].contains(x, y) && !this.grid[i][j].flagged) {
             this.grid[i][j].reveal();
-    
+            
+            if(this.onlyBeesHidden()){
+              return 1;
+            }
             if (this.grid[i][j].bee) {
               return -1;
             }
@@ -87,6 +91,41 @@ Grid.prototype.reveal = function(x, y){
 
 
 }
+
+Grid.prototype.onlyBeesHidden = function(){
+  for (var i = 0; i < this.cols; i++) {
+    for (var j = 0; j < this.rows; j++) {
+      if(!this.grid[i][j].revealed){
+        if(!this.grid[i][j].bee){
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+// flags a cell given mouse coords 
+Grid.prototype.flag = function(x, y){
+
+  for (var i = 0; i < this.cols; i++) {
+    for (var j = 0; j < this.rows; j++) {
+      // cannot flag a cell that is revealed
+      if (this.grid[i][j].contains(x, y) && !this.grid[i][j].revealed) {
+        this.grid[i][j].flag();
+      }
+    }
+  }
+
+
+}
+
+// flags a particular cell 
+Grid.prototype.flagCell = function(cell){
+    if(!cell.revealed) {
+      cell.flagged = true;
+    }
+  }
 
 Grid.prototype.revealCell = function(i, j){
     this.grid[i][j].reveal();
@@ -104,4 +143,28 @@ Grid.prototype.show = function(){
           this.grid[i][j].show();
         }
       }
+}
+
+Grid.prototype.getRevealedCells = function(){
+   var revealedCells = [];
+  for (var i = 0; i < this.cols; i++) {
+    for (var j = 0; j < this.rows; j++) {
+      // if the cell is revealed, ignoring cells with 0 bees
+      if (this.grid[i][j].revealed && this.grid[i][j].neighboringBees > 0) 
+        revealedCells.push(this.grid[i][j]);
+    }
+  }
+  return revealedCells;
+}
+
+Grid.prototype.getUnrevealedCells = function(){
+  var unrevealedCells = [];
+ for (var i = 0; i < this.cols; i++) {
+   for (var j = 0; j < this.rows; j++) {
+     // if the cell is revealed, ignoring cells with 0 bees
+     if (!this.grid[i][j].revealed) 
+       unrevealedCells.push(this.grid[i][j]);
+   }
+ }
+ return unrevealedCells;
 }

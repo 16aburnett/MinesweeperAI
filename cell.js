@@ -15,10 +15,11 @@ function Cell(i, j, w , xOff, yOff) {
   this.y = j * w + yOff;
 
   this.w = w;
-  this.neighborCount = 0;
+  this.neighboringBees = 0;
 
   this.bee = false;
   this.revealed = false;
+  this.flagged = false; 
 }
 
 Cell.prototype.show = function() {
@@ -54,18 +55,25 @@ Cell.prototype.show = function() {
         // }
         fill(200);
       rect(this.x, this.y, this.w, this.w);
-      if (this.neighborCount > 0) {
+      if (this.neighboringBees > 0) {
         textAlign(CENTER);
         fill(0);
-        text(this.neighborCount, this.x + this.w * 0.5, this.y + this.w - 6);
+        text(this.neighboringBees, this.x + this.w * 0.5, this.y + this.w - 6);
       }
     }
+  } else if (this.flagged){
+    fill(200);
+    rect(this.x, this.y, this.w, this.w);
+    textAlign(CENTER);
+    noStroke();
+    fill(200, 0, 0);
+    text('X', this.x + this.w * 0.5, this.y + this.w - 6);
   }
 }
 
 Cell.prototype.countBees = function() {
   if (this.bee) {
-    this.neighborCount = -1;
+    this.neighboringBees = -1;
     return;
   }
   var total = 0;
@@ -83,7 +91,7 @@ Cell.prototype.countBees = function() {
       }
     }
   }
-  this.neighborCount = total;
+  this.neighboringBees = total;
 }
 
 Cell.prototype.contains = function(x, y) {
@@ -92,10 +100,17 @@ Cell.prototype.contains = function(x, y) {
 
 Cell.prototype.reveal = function() {
   this.revealed = true;
-  if (this.neighborCount == 0) {
+  if (this.neighboringBees == 0) {
     // flood fill time
     this.floodFill();
   }
+}
+
+Cell.prototype.flag = function(){
+
+  // toggle flagged
+  this.flagged = this.flagged != true;
+
 }
 
 Cell.prototype.floodFill = function() {
