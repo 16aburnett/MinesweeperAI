@@ -61,30 +61,36 @@ Grid.prototype.pickBees = function(){
 
 }
 
+Grid.prototype.revealCell = function(i, j){
+  this.grid[i][j].reveal();
+
+  if (this.grid[i][j].bee) {
+      return -1;
+  }
+  
+  if(this.onlyBeesHidden()){
+    return 1;
+  }
+  return 0;
+}
+
+// reveals all the cells - when a bomb is pressed
 Grid.prototype.setAllRevealed = function(){
     for (var i = 0; i < this.cols; i++) {
         for (var j = 0; j < this.rows; j++) {
-          this.grid[i][j].revealed = true;
+          this.revealCell(i, j);
         }
       }
 }
 
-Grid.prototype.reveal = function(x, y){
+// reveals a cell at a given x,y coord
+Grid.prototype.revealXY = function(x, y){
 
     for (var i = 0; i < this.cols; i++) {
         for (var j = 0; j < this.rows; j++) {
           // cannot reveal a flagged cell 
           if (this.grid[i][j].contains(x, y) && !this.grid[i][j].flagged) {
-            this.grid[i][j].reveal();
-            
-            if(this.onlyBeesHidden()){
-              return 1;
-            }
-            if (this.grid[i][j].bee) {
-              return -1;
-            }
-            
-            return 0;
+            return this.revealCell(i,j);
           }
         }
       }
@@ -92,6 +98,7 @@ Grid.prototype.reveal = function(x, y){
 
 }
 
+// test if the only things left unrevealed are bees
 Grid.prototype.onlyBeesHidden = function(){
   for (var i = 0; i < this.cols; i++) {
     for (var j = 0; j < this.rows; j++) {
@@ -127,15 +134,6 @@ Grid.prototype.flagCell = function(cell){
     }
   }
 
-Grid.prototype.revealCell = function(i, j){
-    this.grid[i][j].reveal();
-    
-    if (this.grid[i][j].bee) {
-        return -1;
-    }
-    
-    return 0;
-}
 
 Grid.prototype.show = function(){
     for (var i = 0; i < this.cols; i++) {
@@ -162,7 +160,7 @@ Grid.prototype.getUnrevealedCells = function(){
  for (var i = 0; i < this.cols; i++) {
    for (var j = 0; j < this.rows; j++) {
      // if the cell is revealed, ignoring cells with 0 bees
-     if (!this.grid[i][j].revealed) 
+     if (!this.grid[i][j].revealed && !this.grid[i][j].flagged) 
        unrevealedCells.push(this.grid[i][j]);
    }
  }

@@ -33,27 +33,7 @@ Cell.prototype.show = function() {
       fill(255, 255, 0);
       ellipse(this.x + this.w * 0.5, this.y + this.w * 0.5, this.w * 0.5);
     } else {
-
-        // if (this.neighborCount == 0){
-        //     fill(127);
-        // } else if (this.neighborCount == 1){
-        //     fill(0, 100, 200);
-        // } else if (this.neighborCount == 2){
-        //     fill(0, 200, 200);
-        // } else if (this.neighborCount == 3){
-        //     fill(0, 200, 100);
-        // } else if (this.neighborCount == 4){
-        //     fill(0, 200, 0);
-        // } else if (this.neighborCount == 5){
-        //     fill(100, 200, 0);
-        // } else if (this.neighborCount == 6){
-        //     fill(200, 200, 0);
-        // } else if (this.neighborCount == 7){
-        //     fill(200, 100, 0);
-        // } else if (this.neighborCount == 8){
-        //     fill(200, 0, 0);
-        // }
-        fill(200);
+      fill(200);
       rect(this.x, this.y, this.w, this.w);
       if (this.neighboringBees > 0) {
         textAlign(CENTER);

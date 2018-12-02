@@ -1,7 +1,37 @@
+// Minesweeper AI
+// Created By Anthony Burnett
 
 function Bot(){
-   this.revealedCells = []; 
+
+    this.revealedCells = []; 
     this.unrevealedCells = [];
+    this.allowedToPlay = false;
+    this.cursor = new Cursor();
+
+    this.sprite = new Sprite();
+    // sprite shows the current thought process of the bot 
+    // green - it knows (unrevealed) cells that are 100% not bombs 
+    // yellow - it knows (unrevealed) cells that are 100% bombs
+    // red - it doesnt know any (unrevealed) cells that are bombs
+    //     or cells with 100% certainty
+
+
+
+    // bot.stats 
+    // - how many flags
+    // - how many random click phases
+    // - time solved ?
+    // 
+    this.numRandomClick = 0;
+}
+
+Bot.prototype.reset = function(){
+
+    this.revealedCells = []; 
+    this.unrevealedCells = [];
+    this.previousTime = 0;
+    this.timeToSolve = 0;
+    this.numRandomClick = 0;
 
 }
 
@@ -12,6 +42,7 @@ Bot.prototype.play = function(){
 }
 
 Bot.prototype.clickCell = function(){
+
     // Stage 1 : flag all locations that are 100% bombs
     this.getRevealedCells();
     this.getUnrevealedCells();
@@ -20,8 +51,6 @@ Bot.prototype.clickCell = function(){
         //console.log(this.revealedCells[i]);
 
         var numBees = this.revealedCells[i].neighboringBees;
-        //console.log(numBees);
-
         var numNeighbors = 0;
         var neighbors = [];
 
@@ -39,22 +68,21 @@ Bot.prototype.clickCell = function(){
             }
         }
 
-        //console.log(numNeighbors);
-
         // simple case : num neighbors == num neighboring bees
 
         if(numBees == numNeighbors){
+            this.sprite.mode = color(255,255,0);
 
             var flaggged = false;
             // flag all neighbors cos dey bees (100% certain)
             for(var j = 0; j < neighbors.length; j++){
-
+                    
                 //as long as it isnt already flagged
                 if(!neighbors[j].flagged){
                     grid.flagCell(neighbors[j]);
                     flaggged = true;
-                    console.log("flagging cell " + neighbors[j]);
-                    return 0;
+                   this.cursor.cursorToCell(neighbors[j].x + (neighbors[j].w / 2), neighbors[j].y + (neighbors[j].w / 2));
+                   return 0;
                 }
 
             }
@@ -66,11 +94,9 @@ Bot.prototype.clickCell = function(){
 
     // Stage 2 : pick a spot that cannot be a bomb (if there is one)
     for (var i = 0; i < this.revealedCells.length; i++){
-        //console.log(this.revealedCells[i]);
+        this.sprite.mode = color(0,255,0);
 
         var numBees = this.revealedCells[i].neighboringBees;
-        //console.log(numBees);
-
         var numNeighbors = 0;
         var neighbors = [];
 
@@ -101,10 +127,10 @@ Bot.prototype.clickCell = function(){
 
             // click the rest
             for (var j = 0; j < neighbors.length; j++){
+                
                 if (!neighbors[j].flagged){
-                    grid.revealCell(neighbors[j].i, neighbors[j].j);
-                    console.log(neighbors[j]);
-                    return 0;
+                  this.cursor.cursorToCell(neighbors[j].x + (neighbors[j].w / 2), neighbors[j].y + (neighbors[j].w / 2));
+                  return grid.revealCell(neighbors[j].i, neighbors[j].j);
                 }
             }
 
@@ -112,12 +138,19 @@ Bot.prototype.clickCell = function(){
 
     }
 
+    // could add a new stage here to make an more better guess than just any open cell
+    // some cells might have a higher chance of having a bomb 
+    // (if there are more solutions for places of bombs
+    //      where a given cell has a bomb versus not, then avoid it(dont flag))
 
     // Stage 3 : if no spot exists, click a random cell and pray ;__;
-    // console.log(this.unrevealedCells);
-    // var randCell = this.unrevealedCells[random(this.unrevealedCells.length - 1)];
-    // console.log(randCell);
-    // return grid.revealCell(random(this.unrevealedCells.length - 1));
+    if(this.unrevealedCells.length > 0){
+        this.sprite.mode = color(255,0,0);
+        var randCell = this.unrevealedCells[floor(random(this.unrevealedCells.length - 1))];
+        this.cursor.cursorToCell(randCell.x + (randCell.w / 2), randCell.y + (randCell.w / 2));
+        this.numRandomClick++;
+        return grid.revealCell(randCell.i,randCell.j);
+    }
   
 }
 
